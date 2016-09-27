@@ -32,6 +32,12 @@ Config.prototype.get_relationships_by_resource = function(resource_name) {
 }
 
 Config.prototype.get_relationship_by_resource = function(resource_name, name) {
+    if(!resource_name) {
+        throw "Resource must be defined";
+    }
+    if(!name) {
+        throw "Name must be defined";
+    }
     if(!this.relationships[resource_name]) {
         return null;
     }

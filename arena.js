@@ -33,6 +33,9 @@ Arena.prototype.is_resolved = function() {
 Arena.prototype.check_and_mark = function(req) {
     // TODO: check dependencies
     console.log(req);
+    if(req.response) {
+        return;
+    }
     if(req.mark) {
         throw "Request has mark but no response, throwing to prevent inf loop (did you forget to set req.response inside of .query() ?)";
     }
@@ -53,8 +56,27 @@ Arena.prototype.check_and_mark = function(req) {
 
     for(let i in req.dependencies.include) {
         let relationship_name = req.dependencies.include[i];
-        let relationship = this.config.get_relationship_by_resource(req.resource_name, relationship_name);
-        console.log("Relationship ", relationship);
+        let relationship = this.config.get_relationship_by_resource(req.resource, relationship_name);
+        if(!relationship) {
+            throw "Relationship "+relationship_name+" does not exist";
+        }
+        relationship.handle(this, req, relationship_name);
+    }
+
+    for(let relationship_name in req.dependencies.children) {
+        if(req.dependencies.include.includes(relationship_name)) {
+            continue;
+        }
+        let relationship = this.config.get_relationship_by_resource(req.resource, relationship_name);
+        if(!relationship) {
+            throw "Relationship "+relationship_name+" does not exist";
+        }
+        relationship.handle(this, req, relationship_name);
+
+    }
+
+    if(req.origin) {
+        req.origin.relationship.back_propegate(this, req.origin.request, req, req.origin.relationship_name);
     }
 
     return true;

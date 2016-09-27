@@ -1,4 +1,4 @@
-function Request(resource, kind, data, should_output, should_included, is_singular, dependencies) {
+function Request(resource, kind, data, should_output, should_included, is_singular, dependencies, origin) {
     this.resource = resource;
     this.kind = kind;
     this.data = data;
@@ -6,6 +6,7 @@ function Request(resource, kind, data, should_output, should_included, is_singul
     this.should_included = should_included;
     this.is_singular = is_singular;
     this.dependencies = dependencies;
+    this.origin = origin;
     this.response = null;
 }
 
@@ -16,6 +17,7 @@ function RequestBuilder() {
     this._should_output = false;
     this._should_include = false;
     this._dependencies = null;
+    this._origin = null;
 }
 
 RequestBuilder.prototype.resource = function(resource) {
@@ -48,6 +50,11 @@ RequestBuilder.prototype.dependencies = function(dep) {
     return this;
 }
 
+RequestBuilder.prototype.origin = function(relationship, origin, relationship_name) {
+    this._origin = {relationship:relationship, request:origin, relationship_name: relationship_name};
+    return this;
+}
+
 RequestBuilder.prototype.is_singular = function(is_singular) {
     this._is_singular = is_singular;
     return this;
@@ -60,7 +67,7 @@ RequestBuilder.prototype.build = function() {
     if(!this._kind) {
         throw "RequestBuilder must have Kind defined";
     }
-    return new Request(this._resource, this._kind, this._data, this._should_output, this._should_include, this._is_singular, this._dependencies); 
+    return new Request(this._resource, this._kind, this._data, this._should_output, this._should_include, this._is_singular, this._dependencies, this._origin); 
 }
 
 module.exports = function() {

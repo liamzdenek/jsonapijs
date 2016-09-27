@@ -12,7 +12,7 @@ function Controller(config) {
         
         let request = Request()
             .resource(resource_name)
-            .kind("getIndex")
+            .kind("get_index")
             .output(true)
             .dependencies(IncludeInstructions(req.query.include))
             .build();
@@ -35,7 +35,7 @@ function Controller(config) {
 
         let request = Request()
             .resource(resource_name)
-            .kind("getByIds")
+            .kind("get_by_ids")
             .output(true)
             .data(ids)
             .dependencies(IncludeInstructions(req.query.include))

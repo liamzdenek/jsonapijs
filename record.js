@@ -17,6 +17,36 @@ function Record(type, id, attributes, links, relationships) {
     }
 }
 
+Record.prototype.set_relationship = function(relationship_name, records) {
+    if(!this.relationships) {
+        this.relationships = {};
+    }
+
+    if(!this.relationships[relationship_name]) {
+        this.relationships[relationship_name] = {
+            //"links": {
+                //"self": "/"+this.type+"/"+this.id+"/relationships/"+relationship_name,
+            //}
+        };
+    }
+    this.relationships[relationship_name].data = records;
+}
+Record.prototype.push_relationship = function(relationship_name, records) {
+    if(!this.relationships) {
+        this.relationships = {};
+    }
+
+    if(!this.relationships[relationship_name]) {
+        this.relationships[relationship_name] = {
+            data: [],
+            //"links": {
+                //"self": "/"+this.type+"/"+this.id+"/relationships/"+relationship_name,
+            //}
+        };
+    }
+    this.relationships[relationship_name].data.push(records);
+}
+
 function RecordBuilder() {
     this._type = null;
     this._id = null;

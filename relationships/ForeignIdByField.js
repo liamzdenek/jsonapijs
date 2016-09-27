@@ -1,16 +1,16 @@
 var Request = require('../request.js');
 
-function LocalIdByField(field_name, resource_name) {
+function ForeignIdByField(field_name, resource_name) {
     this.field_name = field_name;
     this.resource_name = resource_name;
 }
 
-LocalIdByField.prototype.handle = function(arena, originreq, rel_name) {
+ForeignIdByField.prototype.handle = function(arena, originreq, rel_name) {
     
     let ids = [];
     for(let i in originreq.response) {
         let datum = originreq.response[i];
-        let value = datum.attributes[this.field_name];
+        let value = datum.id;
         if(value != null) {
             ids.push(value);
         }
@@ -20,8 +20,8 @@ LocalIdByField.prototype.handle = function(arena, originreq, rel_name) {
 
     let _newreq = Request()
         .resource(this.resource_name)
-        .kind("get_by_ids")
-        .data(ids)
+        .kind("get_by_field_name")
+        .data({field_name: this.field_name, ids: ids})
         .output(false) // TODO: this might be true in some situations, most of which collude with .include() being true, this should take precedence
         .include(should_include)
         .dependencies(originreq.dependencies.get_child(rel_name))
@@ -38,16 +38,24 @@ LocalIdByField.prototype.handle = function(arena, originreq, rel_name) {
     return ids;
 }
 
-LocalIdByField.prototype.back_propegate = function(arena, originreq, destreq, rel_name) {
-    console.log("LocalIdByField Back propegate ", destreq);
-    for(let i in originreq.response) {
-        let iresult = originreq.response[i];
-        for(let j in destreq.response) {
-            let jresult = destreq.response[j];
-            //console.log("IRES: ", iresult);
-            //console.log("JRES: ", jresult);
-            if(iresult.attributes[this.field_name] == jresult.id) {
-                iresult.set_relationship(rel_name, {
+ForeignIdByField.prototype.back_propegate = function(arena, originreq, destreq, rel_name) {
+    console.log("ForeignIdByField Back propegate ", destreq);
+    let origin = originreq.response;
+    let dest = destreq.response;
+    if(!Array.isArray(origin)) {
+        origin = [origin];
+    }
+    if(!Array.isArray(dest)) {
+        dest = [dest];
+    }
+    for(let i in origin) {
+        let iresult = origin[i];
+        for(let j in dest) {
+            let jresult = dest[j];
+            console.log("IRES: ", iresult);
+            console.log("JRES: ", jresult);
+            if(jresult.attributes[this.field_name] == iresult.id) {
+                iresult.push_relationship(rel_name, {
                     id: jresult.id,
                     type: jresult.type
                 });
@@ -57,5 +65,5 @@ LocalIdByField.prototype.back_propegate = function(arena, originreq, destreq, re
 }
 
 module.exports = function(field_name, resource_name) {
-    return new LocalIdByField(field_name, resource_name);
+    return new ForeignIdByField(field_name, resource_name);
 }
