@@ -1,0 +1,66 @@
+function Record(type, id, attributes, links, relationships) {
+    this.type = type;
+    this.id = id;
+    
+    let isEmpty = function(obj) {
+        return Object.keys(obj).length === 0 && obj.constructor === Object
+    }
+
+    if(!isEmpty(attributes)) {
+        this.attributes = attributes;
+    }
+    if(!isEmpty(links)) {
+        this.links = links;
+    }
+    if(!isEmpty(relationships)) {
+        this.relationships = relationships;
+    }
+}
+
+function RecordBuilder() {
+    this._type = null;
+    this._id = null;
+    this._attributes = {};
+    this._links = {};
+    this._relationships = {};
+}
+
+RecordBuilder.prototype.type = function(type) {
+    this._type = type;
+    return this;
+}
+
+RecordBuilder.prototype.id = function(id) {
+    this._id = id;
+    return this;
+}
+
+RecordBuilder.prototype.attributes = function(attributes) {
+    this._attributes = attributes;
+    return this;
+}
+
+RecordBuilder.prototype.links = function(links) {
+    this._links = links;
+    return this;
+}
+
+RecordBuilder.prototype.relationships = function(relationships) {
+    this._relationships = relationships;
+    return this;
+}
+
+RecordBuilder.prototype.build = function() {
+    if(!this._type) {
+        throw "Record requires Type to be provided";
+    }
+    if(!this._id) {
+        throw "Record requires Id to be provided";
+    }
+
+    return new Record(this._type, this._id, this._attributes, this._links, this._relationships);
+}
+
+module.exports = function() {
+    return new RecordBuilder();
+}
