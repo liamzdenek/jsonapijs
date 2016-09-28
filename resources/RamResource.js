@@ -26,11 +26,14 @@ function RamResource() {
     this.get_index = function(req) {
         let result = [];
         for(k in data) {
+            let datum = data[k];
+            // the object may be manipulated and we dont want it to point to the true copy
+            datum = JSON.parse(JSON.stringify(datum))
             result.push(
                 Record()
                     .type(req.resource)
                     .id(k)
-                    .attributes(data[k])
+                    .attributes(datum)
                     .build()
             );
         }
@@ -41,12 +44,15 @@ function RamResource() {
         let result = [];
         for(i in req.data) {
             let id = req.data[i];
-            if(data[id]) {
+            let datum = data[id];
+            if(datum) {
+                // the object may be manipulated and we dont want it to point to the true copy
+                datum = JSON.parse(JSON.stringify(datum))
                 result.push(
                     Record()
                         .type(req.resource)
                         .id(id)
-                        .attributes(data[id])
+                        .attributes(datum)
                         .build()
                 );
             }
@@ -59,6 +65,8 @@ function RamResource() {
         for(i in data) {
             let datum = data[i];
             if(req.data.ids.includes(datum[req.data.field_name])) {
+                // the object may be manipulated and we dont want it to point to the true copy
+                datum = JSON.parse(JSON.stringify(datum))
                 result.push(
                     Record()
                         .type(req.resource)
