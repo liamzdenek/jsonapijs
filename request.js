@@ -10,6 +10,21 @@ function Request(resource, kind, data, should_output, should_included, is_singul
     this.response = null;
 }
 
+Request.prototype.filter_fields = function(config) {
+    data = this.response;
+    if(!Array.isArray(data)) {
+        data = [data];
+    }
+    for(let i in data) {
+        let datum = data[i];
+        for(let j in datum.attributes) {
+            if(config.is_field_excluded(this.resource, j)) {
+                delete datum.attributes[j]
+            }
+        }
+    }
+}
+
 function RequestBuilder() {
     this._resource = null;
     this._kind = null;

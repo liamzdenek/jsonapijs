@@ -88,6 +88,7 @@ Arena.prototype.get_output = function() {
 
     for(let i in this.requests) {
         let request = this.requests[i];
+        request.filter_fields(this.config);
         if(request.should_output) {
             if(request.is_singular) {
                 data = request.response[0];

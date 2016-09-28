@@ -38,6 +38,11 @@ ForeignIdByField.prototype.handle = function(arena, originreq, rel_name) {
     return ids;
 }
 
+ForeignIdByField.prototype.will_mount = function(config, resource_name, relationship_name) {
+    // make sure the field on the destination resource is hidden
+    config.exclude_field(this.resource_name, this.field_name);
+}
+
 ForeignIdByField.prototype.back_propegate = function(arena, originreq, destreq, rel_name) {
     console.log("ForeignIdByField Back propegate ", destreq);
     let origin = originreq.response;
@@ -52,8 +57,8 @@ ForeignIdByField.prototype.back_propegate = function(arena, originreq, destreq, 
         let iresult = origin[i];
         for(let j in dest) {
             let jresult = dest[j];
-            console.log("IRES: ", iresult);
-            console.log("JRES: ", jresult);
+            //console.log("IRES: ", iresult);
+            //console.log("JRES: ", jresult);
             if(jresult.attributes[this.field_name] == iresult.id) {
                 iresult.push_relationship(rel_name, {
                     id: jresult.id,

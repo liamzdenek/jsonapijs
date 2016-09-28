@@ -38,6 +38,11 @@ LocalIdByField.prototype.handle = function(arena, originreq, rel_name) {
     return ids;
 }
 
+LocalIdByField.prototype.will_mount = function(config, resource_name, relationship_name) {
+    // make sure the field on the origin resource is hidden
+    config.exclude_field(resource_name, this.field_name);
+}
+
 LocalIdByField.prototype.back_propegate = function(arena, originreq, destreq, rel_name) {
     console.log("LocalIdByField Back propegate ", destreq);
     for(let i in originreq.response) {
