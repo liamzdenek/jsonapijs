@@ -21,6 +21,7 @@ function index_requests(environment, INDEX_URL) {
 
     frisby.create('Servers MUST respond with a 406 Not Acceptable status code if a request’s Accept header contains the JSON API media type and all instances of that media type are modified with media type parameters.')
         .get(INDEX_URL)
+        .addHeader("Content-Type", "application/vnd.api+json")
         .addHeader("Accept", "application/vnd.api+json;charset=utf8,application/vnd.api+json;someparameter=abcd")
         .expectStatus(406)
     .toss()
@@ -29,6 +30,7 @@ function index_requests(environment, INDEX_URL) {
 
     frisby.create('Contrapositive: Servers MUST respond with a 406 Not Acceptable status code if a request’s Accept header contains the JSON API media type and all instances of that media type are modified with media type parameters.')
         .get(INDEX_URL)
+        .addHeader("Content-Type", "application/vnd.api+json")
         .addHeader("Accept", "application/vnd.api+json;charset=utf8,application/vnd.api+json")
         .expectStatus(200)
     .toss()
@@ -63,10 +65,10 @@ module.exports = function(environment) {
 }
 
 function resource_requests(environment, URL, resource_name) {
-    RESOURCE_URL = URL + '/' + resource_name;
+    let RESOURCE_URL = URL + '/' + resource_name;
     
     ///////// resource index ////////////
-    common.wrap_success(frisby.create('Resource '+resource_name+' Index'))
+    common.wrap_success(frisby.create('Resource Index'))
         .get(RESOURCE_URL)
         .afterJSON(function(json) {
             if(!json.data || !json.data[0]) {
@@ -75,7 +77,7 @@ function resource_requests(environment, URL, resource_name) {
             let ida = json.data[0].id;
             environment.cache[resource_name] = ida;
             ///////// resource one ///////////
-            common.wrap_success(frisby.create('Resource '+resource_name+' get one'))
+            common.wrap_success(frisby.create('Resource get one'))
                 .get(RESOURCE_URL + '/' + ida)
                 .expectJSONTypes({
                     data: Object,
@@ -87,7 +89,7 @@ function resource_requests(environment, URL, resource_name) {
             }
             let idb = json.data[1].id;
             ///////// resource many ///////////
-            common.wrap_success(frisby.create('Resource '+resource_name+' get many'))
+            common.wrap_success(frisby.create('Resource get many'))
                 .get(RESOURCE_URL + '/' + ida + ',' + idb)
                 .expectJSONTypes({
                     data: Array,
@@ -96,11 +98,17 @@ function resource_requests(environment, URL, resource_name) {
 
                 
             // A server MUST respond with 404 Not Found when processing a request to fetch a single resource that does not exist, except when the request warrants a 200 OK response with null as the primary data (as described above).
-            frisby.create('Resource '+resource_name+' get 404')
+            frisby.create('Resource \''+resource_name+'\' get 404')
                 .get(RESOURCE_URL + '/' + 'fakeasdfasdfasdfadfadsf')
-                .expectStatus(404)
+                .expectStatus(200)
+                .addHeader("Content-Type", "application/vnd.api+json")
                 .afterJSON(function(json) {
-                    expect(Array.isArray(json.data) || typeof json.data == "object").toBe(true);
+                    console.log(json);
+                    if(!Array.isArray(json.data)) {
+                        expect(json.data).toBe(null, "A server MUST respond to a successful request to fetch an individual resource with a resource object or null provided as the response document’s primary data.");
+                    } else {
+                        expect(json.data.length).toBe(0);
+                    }
                 })
             .toss();
         })
@@ -112,7 +120,7 @@ function relationship_requests(environment, URL, resource_name, resource_id, rel
     let RESOURCE_URL = URL + '/' + resource_name + '/' + resource_id;
 
     /*
-    common.wrap_success(frisby.create('Relationship '+resource_name+' + '+relationship_name))
+    common.wrap_success(frisby.create('Relationship'))
         .get(RESOURCE_URL + '/relationships/' + relationship_name)
         .expectStatus(200)
         .afterJSON(function(json) {

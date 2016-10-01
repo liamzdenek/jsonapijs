@@ -5,6 +5,8 @@ common = {
        
         // Clients MUST send all JSON API data in request documents with the header Content-Type: application/vnd.api+json without any media type parameters.
         test = test.addHeader("Content-Type", "application/vnd.api+json")
+        
+
 
         // Servers MUST send all JSON API data in response documents with the header Content-Type: application/vnd.api+json without any media type parameters.
         test = test.expectHeaderContains('Content-Type', 'application/vnd.api+json')
@@ -21,10 +23,10 @@ common = {
     },
     is_resource_object: function(json) {
         // A resource object MUST contain at least the following top-level members:
-        return json["id"] && json["type"];
+        return json && json["id"] && json["type"];
     },
     is_resource_identifier_object: function(json) {
-        return json["id"] && json["type"]
+        return json && json["id"] && json["type"]
     },
     validate_resource_objects: function(data) {
         if(!Array.isArray(data)) {
@@ -54,7 +56,7 @@ common = {
             expect(typeof datum.attributes).toBe("object", "The value of the attributes key MUST be an object (an “attributes object”).");
 
 
-            expect('id' in datum.attributes).toBe(true, "In other words, a resource can not ... have an attribute or relationship named type or id.");
+            expect('id' in datum.attributes).toBe(false, "In other words, a resource can not ... have an attribute or relationship named type or id.");
         }
 
         if(datum.relationships) {
@@ -138,17 +140,17 @@ common = {
         minimum_members: function(json) {
             let permissible = ["data", "errors", "meta"]
             for(let key in permissible) {
-                if(json[permissible[key]]) {
+                if(permissible[key] in json) {
                     return;
                 }
             }
-            expect(null).toBe("A document MUST contain at least one of the following top-level members: "+permissible+", json: "+JSON.stringify(json));
+            expect(null).toBe(true, "A document MUST contain at least one of the following top-level members: "+permissible+", json: "+JSON.stringify(json));
         },
         addl_members: function(json) {
             let permissible = ["data", "errors", "meta", "jsonapi", "links", "included"];
             for(let key in json) {
                 if(!permissible.includes(key)) {
-                    expect(null).toBe("Unless otherwise noted, objects defined by this specification MUST NOT contain any additional members. We found: "+key);
+                    expect(null).toBe(true,"Unless otherwise noted, objects defined by this specification MUST NOT contain any additional members. We found: "+key);
                 }
             }
         }
