@@ -63,7 +63,7 @@ common = {
 
             expect(typeof datum.relationships).toBe("object", "TODO: find the part of the spec that says datum.relationships should be an object");
 
-            expect('type' in datum.relationships).toBe(true, "In other words, a resource can not ... have an attribute or relationship named type or id.")
+            expect('type' in datum.relationships).toBe(false, "In other words, a resource can not ... have an attribute or relationship named type or id. "+datum)
 
         }
 

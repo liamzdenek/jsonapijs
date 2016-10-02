@@ -148,4 +148,37 @@ function relationship_requests(environment, URL, resource_name, relationship_nam
             })
         .toss();
     }
+
+    common.wrap_success(frisby.create('Relationship Include '+resource_name+'.'+relationship_name+' by one'))
+        .get(RESOURCE_URL + '?include=' + relationship_name)
+        .expectStatus(200)
+        .afterJSON(function(json) {
+            expect(json.data).not.toBe(null)
+            expect(typeof json.data).toBe("object");
+            expect(json.included).not.toBe(null);
+            expect(Array.isArray(json.included)).toBe(true)
+        })
+        .afterJSON(function(json) {
+            if(!json.included[0]) {
+                return;
+            }
+            let second_type = json.included[0].type;
+            if(!environment.config.relationships[second_type]) {
+                return;
+            }
+            let second_rel = Object.keys(environment.config.relationships[second_type])[0];
+            //if(environment.config.relationships[second_type]
+            common.wrap_success(frisby.create('Relationship '+resource_name+' ?include='+relationship_name+","+relationship_name+"."+second_rel))
+                .get(RESOURCE_URL + '?include='+relationship_name+","+relationship_name+"."+second_rel)
+                .expectStatus(200)
+                .afterJSON(function(json) {
+                    expect(json.data).not.toBe(null)
+                    expect(typeof json.data).toBe("object");
+                    expect(json.included).not.toBe(null);
+                    expect(Array.isArray(json.included)).toBe(true)
+                })
+            .toss();
+        })
+    .toss();
+
 }
