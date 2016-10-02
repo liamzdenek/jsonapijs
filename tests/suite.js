@@ -56,75 +56,96 @@ module.exports = function(environment) {
     };
 
     for(let resource_name in environment.config.relationships) {
-        if(environment.cache[resource_name]) {
-            for(let relationship_name in environment.config.relationships[resource_name]) {
-                relationship_requests(environment, URL, resource_name, relationship_name, environment.cache[resource_name]); 
-            }
+        console.log("Environment cache: ", environment.cache);
+        for(let relationship_name in environment.config.relationships[resource_name]) {
+            let resource_id = environment.cache[resource_name];
+            resource_id.then(function(resource_id) {
+                relationship_requests(environment, URL, resource_name, relationship_name, resource_id); 
+            })
         }
     }
 }
 
 function resource_requests(environment, URL, resource_name) {
     let RESOURCE_URL = URL + '/' + resource_name;
-    
-    ///////// resource index ////////////
-    common.wrap_success(frisby.create('Resource Index'))
-        .get(RESOURCE_URL)
-        .afterJSON(function(json) {
-            if(!json.data || !json.data[0]) {
-                return;
-            }
-            let ida = json.data[0].id;
-            environment.cache[resource_name] = ida;
-            ///////// resource one ///////////
-            common.wrap_success(frisby.create('Resource get one'))
-                .get(RESOURCE_URL + '/' + ida)
-                .expectJSONTypes({
-                    data: Object,
-                })
-            .toss();
+   
+    environment.cache[resource_name] = new Promise(function(resolve,reject) {
+        ///////// resource index ////////////
+        common.wrap_success(frisby.create('Resource Index'))
+            .get(RESOURCE_URL)
+            .afterJSON(function(json) {
+                if(!json.data || !json.data[0]) {
+                    return;
+                }
+                let ida = json.data[0].id;
+                ///////// resource one ///////////
+                common.wrap_success(frisby.create('Resource get one'))
+                    .get(RESOURCE_URL + '/' + ida)
+                    .expectJSONTypes({
+                        data: Object,
+                    })
+                .toss();
 
-            if(!json.data[1]) {
-                return;
-            }
-            let idb = json.data[1].id;
-            ///////// resource many ///////////
-            common.wrap_success(frisby.create('Resource get many'))
-                .get(RESOURCE_URL + '/' + ida + ',' + idb)
-                .expectJSONTypes({
-                    data: Array,
-                })
-            .toss();
+                if(!json.data[1]) {
+                    resolve([ida]);
+                    return;
+                }
+                let idb = json.data[1].id;
+                resolve([ida,idb])
+                ///////// resource many ///////////
+                common.wrap_success(frisby.create('Resource get many'))
+                    .get(RESOURCE_URL + '/' + ida + ',' + idb)
+                    .expectJSONTypes({
+                        data: Array,
+                    })
+                .toss();
 
-                
-            // A server MUST respond with 404 Not Found when processing a request to fetch a single resource that does not exist, except when the request warrants a 200 OK response with null as the primary data (as described above).
-            frisby.create('Resource \''+resource_name+'\' get 404')
-                .get(RESOURCE_URL + '/' + 'fakeasdfasdfasdfadfadsf')
-                .expectStatus(200)
-                .addHeader("Content-Type", "application/vnd.api+json")
-                .afterJSON(function(json) {
-                    console.log(json);
-                    if(!Array.isArray(json.data)) {
-                        expect(json.data).toBe(null, "A server MUST respond to a successful request to fetch an individual resource with a resource object or null provided as the response document’s primary data.");
-                    } else {
-                        expect(json.data.length).toBe(0);
-                    }
-                })
-            .toss();
-        })
-    .toss();
+                    
+                // A server MUST respond with 404 Not Found when processing a request to fetch a single resource that does not exist, except when the request warrants a 200 OK response with null as the primary data (as described above).
+                frisby.create('Resource \''+resource_name+'\' get 404')
+                    .get(RESOURCE_URL + '/' + 'fakeasdfasdfasdfadfadsf')
+                    .expectStatus(200)
+                    .addHeader("Content-Type", "application/vnd.api+json")
+                    .afterJSON(function(json) {
+                        if(!Array.isArray(json.data)) {
+                            expect(json.data).toBe(null, "A server MUST respond to a successful request to fetch an individual resource with a resource object or null provided as the response document’s primary data.");
+                        } else {
+                            expect(json.data.length).toBe(0);
+                        }
+                    })
+                .toss();
+            })
+            .after(function() {
+                reject();
+            })
+        .toss();
+    })
 }
 
-function relationship_requests(environment, URL, resource_name, resource_id, relationship_name) {
+function relationship_requests(environment, URL, resource_name, relationship_name, resource_ids) {
 
-    let RESOURCE_URL = URL + '/' + resource_name + '/' + resource_id;
+    resource_ida = resource_ids[0];
 
-    /*
-    common.wrap_success(frisby.create('Relationship'))
+    let RESOURCE_URL = URL + '/' + resource_name + '/' + resource_ida;
+
+    common.wrap_success(frisby.create('Relationship '+resource_name+'.'+relationship_name+' by one'))
         .get(RESOURCE_URL + '/relationships/' + relationship_name)
         .expectStatus(200)
         .afterJSON(function(json) {
+            expect(json.data).not.toBe(null)
+            expect(typeof json.data).toBe("object");
         })
     .toss();
-    */
+
+    if(resource_ids.length >= 2) {
+        resource_idb = resource_ids[1];
+        common.wrap_success(frisby.create('Relationship '+resource_name+'.'+relationship_name+' by many'))
+            .get(RESOURCE_URL + ',' + resource_idb + '/relationships/' + relationship_name)
+            .expectStatus(200)
+            .afterJSON(function(json) {
+                expect(json.data).not.toBe(null)
+                expect(typeof json.data).toBe("object");
+            })
+        .toss();
+    }
 }
