@@ -32,13 +32,13 @@ var config = ja.Config();
     config.push_resource("posts", posts);
 }
 {
-    config.push_relationship("cats", "owner", ja.LocalIdByField("owner_id", "people"));
+    config.push_relationship("cats", "owner", ja.IdByLocalField("owner_id", "people"));
 }
 {
-    config.push_relationship("people", "posts", ja.ForeignIdByField("author_id", "posts"));
+    config.push_relationship("people", "posts", ja.IdByForeignField("author_id", "posts"));
 }
 {
-    config.push_relationship("people", "pets", ja.ForeignIdByField("owner_id", "cats"));
+    config.push_relationship("people", "pets", ja.IdByForeignField("owner_id", "cats"));
 }
 
 ja.Routes(config, app);
