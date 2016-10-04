@@ -1,12 +1,9 @@
 var express = require('express')
-    ,bodyparser = require('body-parser')
     ,port = process.env.PORT || 3000
     ,ja = require('./../../lib/')
     ;
 
 var app = express();
-
-app.use( bodyparser.json() );
 
 var config = ja.Config();
 
@@ -39,6 +36,9 @@ var config = ja.Config();
 }
 {
     config.push_relationship("people", "posts", ja.ForeignIdByField("author_id", "posts"));
+}
+{
+    config.push_relationship("people", "pets", ja.ForeignIdByField("owner_id", "cats"));
 }
 
 ja.Routes(config, app);
