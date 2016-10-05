@@ -49,7 +49,12 @@ var config = ja.Config();
     );
 }
 {
-    config.push_relationship("people", "pets", ja.IdByForeignField().field_name("owner_id").resource_name("cats").build());
+    config.push_relationship("people", "pets",
+        ja.IdByForeignField()
+            .field_name("owner_id")
+            .resource_name("cats")
+        .build()
+    );
 }
 
 ja.Routes(config, app);
