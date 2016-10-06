@@ -144,8 +144,9 @@ function resource_update_requests(environment, URL, resource_name) {
         ) // wrap success needs to be after .patch() because {json: true} automatically adds a content type header that we must override
             .expectStatus(200)
             .afterJSON(function(json) {
-                expect(json).toBe(null)
-                console.log("Update One ", json);
+                expect(json.data.id).toBe(ids[0])
+                expect(json.data.type).toBe(resource_name)
+                expect(json.data.attributes.asdf).toBe("123new");
             })
         .toss();
     })
