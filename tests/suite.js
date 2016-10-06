@@ -1,4 +1,5 @@
 var frisby = require('frisby');
+var Promise = require('bluebird');
 
 var common = require('./common.js')
 
@@ -53,6 +54,12 @@ module.exports = function(environment) {
         resource = environment.config.relationships[resource_name];
         console.log("RESOURCE: ", resource_name);
         resource_requests(environment, URL, resource_name);
+    
+        let resource_id = environment.cache[resource_name];
+        console.log("Resource id: ", resource_id);
+        resource_id.then(function(resource_ids) {
+            resource_update_requests(environment, URL, resource_name, resource_ids);
+        })
     };
 
     for(let resource_name in environment.config.relationships) {
@@ -117,6 +124,28 @@ function resource_requests(environment, URL, resource_name) {
             })
             .after(function() {
                 reject();
+            })
+        .toss();
+    })
+}
+
+function resource_update_requests(environment, URL, resource_name) {
+    console.log("Resource update requests");
+    let RESOURCE_URL = URL + '/' + resource_name;
+    environment.cache[resource_name].then(function(ids) {
+        common.wrap_success(frisby.create('Update One')
+            .patch(RESOURCE_URL+"/"+ids[0],{
+                id: ids[0],
+                type: resource_name,
+                attributes: {
+                    "asdf": "123new",
+                }
+            }, {json: true})
+        ) // wrap success needs to be after .patch() because {json: true} automatically adds a content type header that we must override
+            .expectStatus(200)
+            .afterJSON(function(json) {
+                expect(json).toBe(null)
+                console.log("Update One ", json);
             })
         .toss();
     })

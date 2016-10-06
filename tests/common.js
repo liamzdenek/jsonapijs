@@ -10,9 +10,9 @@ common = {
 
         // Servers MUST send all JSON API data in response documents with the header Content-Type: application/vnd.api+json without any media type parameters.
         test = test.expectHeaderContains('Content-Type', 'application/vnd.api+json')
-   
-        // A server MUST respond to a successful request to fetch an individual resource or resource collection with a 200 OK response. 
-        test = test.expectStatus(200)
+
+    // A server MUST respond to a successful request to fetch an individual resource or resource collection with a 200 OK response. 
+    test = test.expectStatus(200)
 
         return test;
     },
@@ -56,14 +56,14 @@ common = {
             expect(typeof datum.attributes).toBe("object", "The value of the attributes key MUST be an object (an “attributes object”).");
 
 
-            expect('id' in datum.attributes).toBe(false, "In other words, a resource can not ... have an attribute or relationship named type or id.");
+            expect('id' in datum.attributes).toBe(false, "In other words, a resource can not ... have an attribute or relationship named type or id. "+JSON.stringify(datum));
         }
 
         if(datum.relationships) {
 
             expect(typeof datum.relationships).toBe("object", "TODO: find the part of the spec that says datum.relationships should be an object");
 
-            expect('type' in datum.relationships).toBe(false, "In other words, a resource can not ... have an attribute or relationship named type or id. "+datum)
+            expect('type' in datum.relationships).toBe(false, "In other words, a resource can not ... have an attribute or relationship named type or id. "+JSON.stringify(datum))
 
         }
 
@@ -96,9 +96,9 @@ common = {
                 if(Array.isArray(json.data)) {
                     for(let i in json.data) {
                         let datum = json.data[i];
-                        console.log("MODE: ",mode);
+                        console.log("MODE: ",mode, datum);
                         if(!mode(datum)) {
-                            temp_failure = "Primary data MUST be either: ... an array of resource objects, an array of resource identifier objects, or an empty array ([]), for requests that target resource collections";
+                            temp_failure = "Primary data MUST be either: ... an array of resource objects, an array of resource identifier objects, or an empty array ([]), for requests that target resource collections -- "+JSON.stringify(datum);
                             continue OUTER;
 
                         }
@@ -106,7 +106,7 @@ common = {
                     return; // no error
                 } else if(json.data) {
                     if(!mode(json.data)) {
-                        temp_failure = "Primary data MUST be either: ... a single resource object, a single resource identifier object, or null, for requests that target single resources";
+                        temp_failure = "Primary data MUST be either: ... a single resource object, a single resource identifier object, or null, for requests that target single resources -- "+JSON.stringify(json);
                         continue OUTER;
                     }
                     return; // no error
