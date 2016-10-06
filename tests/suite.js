@@ -189,7 +189,7 @@ function relationship_requests(environment, URL, resource_name, relationship_nam
             expect(Array.isArray(json.included)).toBe(true)
         })
         .afterJSON(function(json) {
-            if(!json.included[0]) {
+            if(!json.included || !json.included[0]) {
                 return;
             }
             let second_type = json.included[0].type;
@@ -209,8 +209,8 @@ function relationship_requests(environment, URL, resource_name, relationship_nam
                 })
             .toss();
 
-            common.wrap_success(frisby.create('Relationship Include '+resource_name+'.'+relationship_name+' by one'))
-                .get(RESOURCE_URL + '/relationship/' + relationship_name)
+            common.wrap_success(frisby.create('/relationships/'+relationship_name))
+                .get(RESOURCE_URL + '/relationships/' + relationship_name)
                 .afterJSON(function(json) {
                     expect(null).toBe(json)
                 })

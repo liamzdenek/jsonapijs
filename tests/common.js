@@ -81,6 +81,13 @@ common = {
         return true;
     },
     validators: {
+        has_no_error: function(json) {
+            if(!json.meta || !('error' in json.meta)) {
+                return;
+            }
+
+            expect(json.meta.error).toBe(null);
+        },
         primary_data_resource_objects: function(json) {
             if(!common.is_resource_objects(json.data)) {
                 return;
