@@ -208,7 +208,13 @@ function relationship_requests(environment, URL, resource_name, relationship_nam
                     expect(Array.isArray(json.included)).toBe(true)
                 })
             .toss();
+
+            common.wrap_success(frisby.create('Relationship Include '+resource_name+'.'+relationship_name+' by one'))
+                .get(RESOURCE_URL + '/relationship/' + relationship_name)
+                .afterJSON(function(json) {
+                    expect(null).toBe(json)
+                })
+            .toss();
         })
     .toss();
-
 }
