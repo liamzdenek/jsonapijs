@@ -212,7 +212,7 @@ function relationship_requests(environment, URL, resource_name, relationship_nam
             common.wrap_success(frisby.create('/relationships/'+relationship_name))
                 .get(RESOURCE_URL + '/relationships/' + relationship_name)
                 .afterJSON(function(json) {
-                    expect(null).toBe(json)
+                    expect(json.data).not.toBe(undefined)
                 })
             .toss();
         })

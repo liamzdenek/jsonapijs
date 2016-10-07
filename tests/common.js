@@ -81,7 +81,13 @@ common = {
         return true;
     },
     validators: {
-        has_no_error: function(json) {
+        no_errors: function(json) {
+            expect(json.errors).toBe(null);
+            if(json.errors) {
+                expect(Array.isArray(json.errors)).toBe(true, "Error objects MUST be returned as an array keyed by errors in the top level of a JSON API document.")
+            }
+        },
+        legacy_no_errors: function(json) {
             if(!json.meta || !('error' in json.meta)) {
                 return;
             }
