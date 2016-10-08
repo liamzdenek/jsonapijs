@@ -54,7 +54,7 @@ var mysql = ja.MySQLResource()
 {
     config.push_relationship("users", "posts",
         ja.IdByForeignField()
-            .field_name("author_id")
+            .field_name("author_user_id")
             .resource_name("posts")
         .build()
     );
