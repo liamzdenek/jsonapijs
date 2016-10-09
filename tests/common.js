@@ -82,7 +82,7 @@ common = {
     },
     validators: {
         no_errors: function(json) {
-            expect(json.errors).toBe(undefined);
+            expect(json.errors).toBe(undefined, "The top-level errors object exists");
             if(json.errors) {
                 expect(Array.isArray(json.errors)).toBe(true, "Error objects MUST be returned as an array keyed by errors in the top level of a JSON API document.")
             }

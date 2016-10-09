@@ -1,5 +1,5 @@
 var express = require('express')
-    ,port = process.env.PORT || 3000
+    ,port = process.env.PORT || 3002
     ,ja = require('./../../lib/')
     ,jautho = require("./../../lib/authorization")
     ;
@@ -70,5 +70,5 @@ app.listen(port, function() {
 module.exports = {
     app: app,
     config: config,
-    URL: "http://localhost:3000",
+    URL: "http://localhost:3002",
 }
