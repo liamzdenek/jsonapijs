@@ -27,15 +27,16 @@ var mysql = ja.MySQLResource()
 }
 {
     let users = ja.RamResource();
-    users.push("1", {"asdf": "123"});
-    users.push("2", {"asdf": "223"});
-    users.push("3", {"asdf": "323"});
-    users.push("4", {"asdf": "423"});
+    users.push("1", {"username": "123", "password": "abcd"});
+    users.push("2", {"username": "223", "password": "abcd"});
+    users.push("3", {"username": "323", "password": "abcd"});
+    users.push("4", {"username": "423", "password": "abcd"});
     config.push_resource("users", users);
 }
 {
     let authorization = jautho.AuthorizationResource()
-    
+        .default_user_finder("users", "username")
+        .literal_password_checker("password")
     .build();
 
     config.push_resource("session", authorization);
