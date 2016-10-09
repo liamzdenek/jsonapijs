@@ -1,7 +1,7 @@
 var express = require('express')
     ,port = process.env.PORT || 3002
     ,ja = require('./../../lib/')
-    ,jautho = require("./../../lib/authorization")
+    ,jautho = require("./../../lib/authentication")
     ;
 
 var app = express();
@@ -34,13 +34,13 @@ var mysql = ja.MySQLResource()
     config.push_resource("users", users);
 }
 {
-    let authorization = jautho.AuthorizationResource()
+    let authentication = jautho.AuthenticationResource()
         .default_user_finder("users", "username")
         .literal_password_checker("password")
         .session_resource(ja.UUIDGeneratorResource(ja.RamResource()))
     .build();
 
-    config.push_resource("session", authorization);
+    config.push_resource("session", authentication);
 }
 {
     config.push_relationship("cats", "owner",
