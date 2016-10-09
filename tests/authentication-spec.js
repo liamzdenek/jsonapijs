@@ -29,6 +29,8 @@ function check_login(id) {
         .addHeader("Authorization", "Bearer "+id)
         .afterJSON(function(json) {
             console.log("CHECK LOGIN: ", json);
+            expect(json.data.relationships.logged_in_as.data.type).toBe("users", "Expected a user relationship to be specified in the relationships section");
+            expect(json.data.relationships.logged_in_as.data.id).toBe("2", "Expected a user relationship to be specified in the relationships section");
         })
     .toss();
 
@@ -37,6 +39,7 @@ function check_login(id) {
         .addHeader("Authorization", "Bearer "+id)
         .afterJSON(function(json) {
             console.log("INCLUDED: ", json);
+            expect(json.included.length).toBe(1,"Expected included to contain the user record");
         })
     .toss();
 }
