@@ -135,10 +135,12 @@ function resource_update_requests(environment, URL, resource_name) {
     environment.cache[resource_name].then(function(ids) {
         common.wrap_success(frisby.create('Update One')
             .patch(RESOURCE_URL+"/"+ids[0],{
-                id: ids[0],
-                type: resource_name,
-                attributes: {
-                    "asdf": "123new",
+                data: {
+                    id: ids[0],
+                    type: resource_name,
+                    attributes: {
+                        "asdf": "123new",
+                    }
                 }
             }, {json: true})
         ) // wrap success needs to be after .patch() because {json: true} automatically adds a content type header that we must override
@@ -203,9 +205,9 @@ function relationship_requests(environment, URL, resource_name, relationship_nam
                 .expectStatus(200)
                 .afterJSON(function(json) {
                     expect(json.data).not.toBe(null)
-                    expect(typeof json.data).toBe("object");
+                    expect(typeof json.data).toBe("object", "The primary document data should be an object");
                     expect(json.included).not.toBe(null);
-                    expect(Array.isArray(json.included)).toBe(true)
+                    expect(Array.isArray(json.included)).toBe(true, "The primary document included should be an array")
                 })
             .toss();
 
