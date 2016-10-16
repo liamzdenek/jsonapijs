@@ -30,6 +30,7 @@ var mysql = ja.MySQLResource()
     let sessions = ja.RamResource();
 
     sessions.push("123e4567-e89b-12d3-a456-426655440000", {"user_type": "users", "user_id": "1"});
+    sessions.push("123e4567-e89b-12d3-a456-426655440001", {"user_type": "users", "user_id": "2"});
 
     let authentication = jauthe.AuthenticationResource()
         .default_user_finder("users", "username")
@@ -43,12 +44,11 @@ let rbac;
 {
     let test_roles = ja.RamResource();
     
-    test_roles.push("1", {"user_id": "1", "node": "cats.get_index"});
-    test_roles.push("2", {"user_id": "1", "node": "cats.get_by_ids"});
+    test_roles.push("1", {"user_id": "2", "node": "cats.get_index"});
+    test_roles.push("2", {"user_id": "2", "node": "cats.get_by_ids"});
 
     rbac = jautho.RBAC()
-        .session_resource("session")
-        .role_storage_resource(jautho.SimpleRoleStorage(test_roles))
+        .role_storage_resource(jautho.SimpleRoleStorage("session", test_roles))
     .build();
 }
 {
@@ -59,12 +59,8 @@ let rbac;
     cats.push("cat4", {"asdf": "423", "owner_id": "4"});
     config.push_resource("cats", rbac.protect()
         .resource(cats)
-        .require(
-            //jautho.Any([
-                jautho.Relationship("owner").matches_session_user()
-                //jautho.Permission("cats"), // the request type will be tacked on eg cats.get_by_ids for the actual check
-            //])
-        )
+        .require(jautho.Permission("cats").append_req_kind())
+        .require(jautho.Relationship("owner").matches_session_user())
     .build());
 }
 {
