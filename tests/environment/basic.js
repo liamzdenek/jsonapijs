@@ -18,10 +18,14 @@ var mysql = ja.MySQLResource()
 
 {
     let cats = ja.RamResource();
-    cats.push("cat1", {"asdf": "123", "owner_id": "1"});
+    for(let i = 0; i < 500; i++) {
+        cats.push("cat"+i, {"asdf": i, "owner_id": ""+(1+Math.floor(i/4))});
+    } 
+    /*cats.push("cat1", {"asdf": "123", "owner_id": "1"});
     cats.push("cat2", {"asdf": "223", "owner_id": "2"});
     cats.push("cat3", {"asdf": "323", "owner_id": "3"});
     cats.push("cat4", {"asdf": "423", "owner_id": "4"});
+    */
     config.push_resource("cats", cats);
 }
 {
