@@ -1,5 +1,5 @@
 var frisby = require('frisby');
-var environment = require('./environment/2.js');
+var environment = require('./environment/authentication_and_authorization.js');
 var common = require('./common.js');
 var uuid = require('node-uuid');
 let static_test_id = '123e4567-e89b-12d3-a456-426655440000';
