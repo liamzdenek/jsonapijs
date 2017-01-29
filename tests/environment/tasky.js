@@ -28,7 +28,9 @@ var mysql = ja.MySQLResource()
 let users, orgs;
 {
     users = mysql.table("user", "id");
-	config.push_resource("users", users);
+	
+	let users_bcrypt = new jauthe.BcryptResource("pw_hash", users);
+	config.push_resource("users", users_bcrypt);
 }
 {
 	orgs = mysql.table("org", "id");
@@ -67,7 +69,7 @@ let users, orgs;
 
 	let authentication = jauthe.AuthenticationResource()
 		.default_user_finder("users", "email")
-		.literal_password_checker("pw_hash")
+		.bcrypt_password_checker("pw_hash")
 		.session_resource(ja.UUIDGeneratorResource(sessions))
 	.build();
 	
