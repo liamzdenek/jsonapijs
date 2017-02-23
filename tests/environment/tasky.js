@@ -20,7 +20,7 @@ var mysql = ja.MySQLResource()
     .connection_object({
         host: 'localhost',
         user: 'liam',
-        password: '',
+        password: 'password',
         database: "tasky",
     })
 .build();
@@ -62,6 +62,7 @@ let users, orgs;
 		join_to_src_name: "user",
 		dst: "orgs"
 	});
+	config.push_relationship("users", "orgs", new ja.Alias("org_join.org"))
 }
 {
 	let sessions = ja.RamResource();
